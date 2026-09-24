@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Deutsch-Tutor</title>
+</head>
+<body>
+  <h1>{{ greeting }}</h1>
+
+  {% if user_msg %}
+    <p><b>Du:</b> {{ user_msg }}</p>
+    <p><b>Tutor:</b> {{ reply }}</p>
+  {% endif %}
+
+  <form action="/chat" method="post">
+    <input name="message" placeholder="Schreib auf Deutsch…" required>
+    <button>Senden</button>
+  </form>
+</body>
+</html>
