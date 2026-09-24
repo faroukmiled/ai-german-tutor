@@ -2,17 +2,17 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>Deutsch-Tutor</title>
+  <title> Deutsch-Tutor</title>
+  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+
 </head>
 <body>
   <h1>{{ greeting }}</h1>
 
-  {% if user_msg %}
-    <p><b>Du:</b> {{ user_msg }}</p>
-    <p><b>Tutor:</b> {{ reply }}</p>
-  {% endif %}
+  <div id="chat"></div>
 
-  <form action="/chat" method="post">
+  <form hx-post="/chat" hx-target="#chat" hx-swap="beforeend"
+      hx-on::after-request="this.reset()">
     <input name="message" placeholder="Schreib auf Deutsch…" required>
     <button>Senden</button>
   </form>

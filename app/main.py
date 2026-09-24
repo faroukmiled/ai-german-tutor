@@ -13,7 +13,6 @@ def home(request : Request):
 def chat(request: Request, message: str = Form(...)):
     reply = f"Echo: {message}"
     return templates.TemplateResponse(
-        request, "index.html",
-        {"greeting": "Hallo! Ich bin dein Deutsch-Tutor.",
-         "user_msg": message, "reply": reply},
+        request, "partials/message.html",
+        {"user_msg": message, "reply": reply},
     )
