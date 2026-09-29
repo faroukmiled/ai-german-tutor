@@ -17,17 +17,21 @@ SYSTEM_PROMPT = """You are a friendly German tutor chatting with a learner at le
 - Then, if the learner made mistakes, give the corrected sentence and a very short explanation in English.
 - If there are no mistakes, don't mention corrections.
 - Plain text only. No Markdown, no bold, no bullet points."""
+history = []
 def ask_tutor(message: str) -> str:
+    history.append(types.Content(role="user", parts=[types.Part(text=message)]))
     for model in MODELS:
         try:
             response = client.models.generate_content(
                 model=model,
-                contents=message,
+                contents=history,
                 config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
             )
+            history.append(types.Content(role="model", parts=[types.Part(text=response.text)]))
             return response.text
         except errors.APIError as e:
             print(f"{model} failed: {e}")
+    history.pop()
     return "Entschuldigung, der Tutor ist gerade überlastet. Bitte versuch es gleich noch einmal."
 app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
