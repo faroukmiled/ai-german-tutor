@@ -1,3 +1,4 @@
+import uuid
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -17,8 +18,8 @@ SYSTEM_PROMPT = """You are a friendly German tutor chatting with a learner at le
 - Then, if the learner made mistakes, give the corrected sentence and a very short explanation in English.
 - If there are no mistakes, don't mention corrections.
 - Plain text only. No Markdown, no bold, no bullet points."""
-history = []
-def ask_tutor(message: str) -> str:
+histories = {}
+def ask_tutor(message: str, history: list) -> str:
     history.append(types.Content(role="user", parts=[types.Part(text=message)]))
     for model in MODELS:
         try:
@@ -37,12 +38,19 @@ app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
 @app.get("/", response_class=HTMLResponse)
 def home(request : Request):
-    return templates.TemplateResponse(
+    response = templates.TemplateResponse(
         request, "index.html", {"greeting": "Hallo! Ich bin dein Deutsch-Tutor."}
     )
+    session_id = str(uuid.uuid4())
+    if "session_id" not in request.cookies:
+        response.set_cookie("session_id", session_id, httponly=True, samesite="lax")
+    histories[session_id] = []
+    return response
 @app.post("/chat", response_class=HTMLResponse)
 def chat(request: Request, message: str = Form(...)):
-    reply = ask_tutor(message)
+    session_id = request.cookies.get("session_id")
+    history = histories.setdefault(session_id, [])
+    reply = ask_tutor(message,history)
     return templates.TemplateResponse(
         request, "partials/message.html",
         {"user_msg": message, "reply": reply},
