@@ -1,0 +1,10 @@
+-- SQLite
+CREATE TABLE IF NOT EXISTS sessions (
+session_id TEXT PRIMARY KEY,
+created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS messages(
+message_id INTEGER PRIMARY KEY AUTOINCREMENT ,
+session_id TEXT REFERENCES sessions(session_id) NOT NULL,
+role TEXT CHECK(role IN  ('user','model')) NOT NULL,
+message TEXT NOT NULL,
+created_at TEXT DEFAULT CURRENT_TIMESTAMP);

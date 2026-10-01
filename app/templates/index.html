@@ -11,7 +11,11 @@
 <body>
   <h1>{{ greeting }}</h1>
 
-  <div id="chat"></div>
+  <div id="chat">
+    {% for role,text in history %}
+    <p><b>{% if role == "user" %}Du{% else %}Tutor{% endif %}:</b> {{ text }}</p>
+  {% endfor %}
+  </div>
 
   <form hx-post="/chat" hx-target="#chat" hx-swap="beforeend"
       hx-on::after-request="this.reset()"  hx-indicator="#thinking" hx-disabled-elt="find button">
