@@ -1,5 +1,6 @@
 import sqlite3
-
+from typing import Optional
+from app.schemas import TutorResponse
 DB_PATH = "./tutor.db"
 
 def get_connection():
@@ -9,9 +10,18 @@ def get_connection():
 def ensure_session(session_id : str):
     with get_connection() as conn :
         conn.execute("INSERT OR IGNORE INTO sessions (session_id) VALUES (?)", (session_id,))
-def save_message(session_id: str, role : str, message : str):
+def save_message(session_id: str, role : str, message : str, corrected_sentence:Optional[str] = None) -> int:
     with get_connection() as conn :
-        conn.execute("INSERT  INTO messages (session_id,role,message) VALUES (?,?,?)", (session_id,role,message))
+        cursor = conn.execute("INSERT  INTO messages (session_id,role,message,corrected_sentence) VALUES (?,?,?,?)", (session_id,role,message,corrected_sentence))
+        return cursor.lastrowid
 def load_history(session_id:str):
     with get_connection() as conn :
         return conn.execute("SELECT role,message FROM messages where session_id = ? ORDER BY message_id", (session_id,)).fetchall()
+def save_exchange(session_id: str, user_message: str, tutor: TutorResponse) -> None:
+    with get_connection() as conn :
+        user_message_id = conn.execute("INSERT  INTO messages (session_id,role,message,corrected_sentence) VALUES (?,?,?,?)", (session_id,"user",user_message,tutor.corrected_sentence)).lastrowid
+        conn.execute("INSERT  INTO messages (session_id,role,message) VALUES (?,?,?)", (session_id,"model",tutor.reply))
+        for mistake in tutor.mistakes:
+            conn.execute("INSERT INTO mistakes (message_id,category,original,correction,explanation) VALUES (?,?,?,?,?) ",(user_message_id,mistake.category,mistake.original,mistake.correction,mistake.explanation))
+        for vocab in tutor.vocabulary:
+            conn.execute("INSERT OR IGNORE INTO vocabulary (session_id,word,gender,translation) VALUES (?,?,?,?) ",(session_id,vocab.word,vocab.gender,vocab.translation))

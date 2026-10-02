@@ -9,7 +9,7 @@ from google.genai import types
 from google.genai import errors
 from dotenv import load_dotenv
 from app.schemas import TutorResponse
-from app.db import save_message,load_history,ensure_session
+from app.db import save_exchange,load_history,ensure_session
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -70,8 +70,7 @@ def chat(request: Request, message: str = Form(...)):
     try : 
         tutor_response = ask_tutor(message,history)
         reply = tutor_response.reply
-        save_message(session_id=session_id,role='user',message=message)
-        save_message(session_id=session_id,role='model',message=reply)
+        save_exchange(session_id, message, tutor_response)
     except TutorUnavailable:
         tutor_response= None
         reply = "Entschuldigung, der Tutor ist gerade überlastet. Bitte versuch es gleich noch einmal."
