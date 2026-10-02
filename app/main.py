@@ -9,7 +9,7 @@ from google.genai import types
 from google.genai import errors
 from dotenv import load_dotenv
 from app.schemas import TutorResponse
-from app.db import save_exchange,load_history,ensure_session
+from app.db import save_exchange,load_conversation,ensure_session,load_history
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -41,8 +41,10 @@ def ask_tutor(message: str, history: list) -> TutorResponse:
                         response_schema=TutorResponse,
                         ),
             )
-            if response.parsed:
-                return response.parsed
+            if response.parsed is None:
+                print(f"{model} returned unparseable output")
+                continue  
+            return response.parsed
         except errors.APIError as e:
             print(f"{model} failed: {e}")
     raise TutorUnavailable
@@ -51,10 +53,10 @@ templates = Jinja2Templates(directory="app/templates")
 @app.get("/", response_class=HTMLResponse)
 def home(request : Request):
     session_id = request.cookies.get("session_id")
-    history = load_history(session_id=session_id)
+    conversation = load_conversation(session_id=session_id) if session_id else []
     response = templates.TemplateResponse(
         request, "index.html", {"greeting": "Hallo! Ich bin dein Deutsch-Tutor.",
-                                "history":history},
+                                "conversation":conversation},
     )
     if "session_id" not in request.cookies:
         session_id = str(uuid.uuid4())

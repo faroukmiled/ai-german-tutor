@@ -25,3 +25,39 @@ def save_exchange(session_id: str, user_message: str, tutor: TutorResponse) -> N
             conn.execute("INSERT INTO mistakes (message_id,category,original,correction,explanation) VALUES (?,?,?,?,?) ",(user_message_id,mistake.category,mistake.original,mistake.correction,mistake.explanation))
         for vocab in tutor.vocabulary:
             conn.execute("INSERT OR IGNORE INTO vocabulary (session_id,word,gender,translation) VALUES (?,?,?,?) ",(session_id,vocab.word,vocab.gender,vocab.translation))
+def load_conversation(session_id: str)->list[dict]:
+    with get_connection() as conn :
+        rows = rows = conn.execute( """
+            SELECT m.message_id, m.role, m.message, m.corrected_sentence,
+                   k.category, k.original, k.correction, k.explanation
+            FROM messages m
+            LEFT JOIN mistakes k ON k.message_id = m.message_id WHERE m.session_id = ?
+            ORDER BY m.message_id, k.mistake_id
+            """,
+            (session_id,),
+                    ).fetchall()
+        conversation = []
+        for message_id, role, text, corrected, category, original, correction, explanation in rows:
+            if not conversation or conversation[-1]["id"] != message_id: conversation.append({
+                            "id": message_id,
+                            "role": role,
+                            "text": text,
+                            "corrected_sentence": corrected,
+                            "mistakes": [],
+            })
+            if category is not None:
+                        conversation[-1]["mistakes"].append({
+                            "category": category,
+                            "original": original,
+                            "correction": correction,
+                            "explanation": explanation,
+            })
+        return conversation
+
+
+
+            
+
+        
+
+    pass

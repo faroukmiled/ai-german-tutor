@@ -1,24 +1,8 @@
-<p><b>Du:</b> {{ user_msg }}</p>
-<p><b>Tutor:</b> {{ reply }}</p>
-
+{% from "macros.html" import learner_message, tutor_message, vocabulary_list %}
 {% if learnings %}
-<div>
-  {% if learnings.corrected_sentence %}
-    <p><b>Korrektur:</b> {{ learnings.corrected_sentence }}</p>
-    <ul>
-      {% for m in learnings.mistakes %}
-        <li><b>{{ m.original }}</b> → {{ m.correction }} ({{ m.category }}): {{ m.explanation }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-
-  {% if learnings.vocabulary %}
-    <p><b>Wortschatz:</b></p>
-    <ul>
-      {% for v in learnings.vocabulary %}
-        <li>{{ v.word }}{% if v.gender %} ({{ v.gender }}){% endif %}: {{ v.translation }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-</div>
+  {{ learner_message(user_msg, learnings.corrected_sentence, learnings.mistakes) }}
+  {{ tutor_message(learnings.reply) }}
+  {{ vocabulary_list(learnings.vocabulary) }}
+{% else %}
+{{ learner_message(user_msg, None, []) }} {{ tutor_message(reply) }}
 {% endif %}

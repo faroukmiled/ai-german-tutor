@@ -1,3 +1,4 @@
+{% from "macros.html" import learner_message, tutor_message %}
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -12,8 +13,12 @@
   <h1>{{ greeting }}</h1>
 
   <div id="chat">
-    {% for role,text in history %}
-    <p><b>{% if role == "user" %}Du{% else %}Tutor{% endif %}:</b> {{ text }}</p>
+    {% for msg in conversation %}
+    <p><b>{% if msg.role == "user" %}
+      {{learner_message(msg.text,msg.corrected_sentence,msg.mistakes)}}
+      {% else %}
+      {{tutor_message(msg.text)}}
+      {% endif %}
   {% endfor %}
   </div>
 
