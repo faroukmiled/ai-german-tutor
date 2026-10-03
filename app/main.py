@@ -1,4 +1,5 @@
 import uuid
+from typing import Literal
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -20,7 +21,7 @@ def home(request : Request):
     conversation = db.load_conversation(session_id=session_id) if session_id else []
     response = templates.TemplateResponse(
         request, "index.html", {"greeting": "Hallo! Ich bin dein Deutsch-Tutor.",
-                                "conversation":conversation},
+                                "conversation":conversation,"level":db.get_level(session_id=session_id) if session_id else "A2"},
     )
     if "session_id" not in request.cookies:
         session_id = str(uuid.uuid4())
@@ -33,8 +34,9 @@ def chat(request: Request, message: str = Form(...)):
             return HTMLResponse("<p>Bitte lade die Seite neu.</p>")
     db.ensure_session(session_id=session_id)
     history = db.load_history(session_id=session_id)
+    level = db.get_level(session_id=session_id)
     try : 
-        tutor_response = ask_tutor(message,history)
+        tutor_response = ask_tutor(message,history,level)
         reply = tutor_response.reply
         db.save_exchange(session_id, message, tutor_response)
     except TutorUnavailable:
@@ -45,3 +47,10 @@ def chat(request: Request, message: str = Form(...)):
         request, "partials/message.html",
         {"user_msg": message, "reply": reply,"learnings": tutor_response},
     )
+@app.post("/level", response_class=HTMLResponse)
+def change_level(request: Request, level: Literal["A1", "A2", "B1", "B2"] = Form(...)):
+    session_id = request.cookies.get("session_id")
+    if not session_id:
+         return HTMLResponse("Bitte lade die Seite neu.")
+    db.set_level(session_id=session_id,level=level)
+    return HTMLResponse(f"Niveau: {level} ✓")

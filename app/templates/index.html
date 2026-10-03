@@ -11,6 +11,13 @@
 </head>
 <body>
   <h1>{{ greeting }}</h1>
+  <label>Niveau
+    <select name="level" hx-post="/level" hx-trigger="change" hx-target="#level-status">
+    {% for l in ["A1", "A2", "B1", "B2"] %}
+    <option value="{{ l }}" {% if l == level %}selected{% endif %}>{{ l }}</option> {% endfor %}
+    </select>
+    </label>
+    <span id="level-status"></span>
 
   <div id="chat">
     {% for msg in conversation %}

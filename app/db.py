@@ -6,7 +6,10 @@ import os
 BASE_DIR = Path(__file__).parent.parent
 DB_PATH = os.getenv("TUTOR_DB",BASE_DIR /"tutor.db")
 SCHEMA_PATH = BASE_DIR / "schema.sql"
-MIGRATIONS = []
+MIGRATIONS = [
+     # 1 - learner level
+     """ ALTER TABLE sessions ADD COLUMN level TEXT NOT NULL DEFAULT 'A2' CHECK (level IN
+('A1', 'A2', 'B1', 'B2'))"""]
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
@@ -70,11 +73,11 @@ def load_conversation(session_id: str)->list[dict]:
                             "explanation": explanation,
             })
         return conversation
-
-
-
-            
-
-        
-
-    pass
+def get_level(session_id:str)->str:
+        with get_connection() as conn:
+            row = conn.execute("""SELECT level from sessions WHERE session_id = ?""",(session_id,)).fetchone()
+            return row[0] if row else "A2"
+def set_level(session_id:str, level : str)->str:
+        with get_connection() as conn:
+            conn.execute("""INSERT OR IGNORE INTO sessions (session_id) VALUES (?)""",(session_id,))
+            conn.execute("""UPDATE sessions SET level = ? WHERE session_id = ?""",(level,session_id))
