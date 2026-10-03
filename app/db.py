@@ -1,12 +1,22 @@
 import sqlite3
 from typing import Optional
 from app.schemas import TutorResponse
-DB_PATH = "./tutor.db"
-
+from pathlib import Path
+import os
+BASE_DIR = Path(__file__).parent.parent
+DB_PATH = os.getenv("TUTOR_DB",BASE_DIR /"tutor.db")
+SCHEMA_PATH = BASE_DIR / "schema.sql"
+     
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
+def init_db():
+     conn = get_connection() 
+     try:
+        conn.executescript(SCHEMA_PATH.read_text()) 
+     finally:
+        conn.close()
 def ensure_session(session_id : str):
     with get_connection() as conn :
         conn.execute("INSERT OR IGNORE INTO sessions (session_id) VALUES (?)", (session_id,))

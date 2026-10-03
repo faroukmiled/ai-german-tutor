@@ -4,5 +4,6 @@
   {{ tutor_message(learnings.reply) }}
   {{ vocabulary_list(learnings.vocabulary) }}
 {% else %}
-{{ learner_message(user_msg, None, []) }} {{ tutor_message(reply) }}
+{{ learner_message(user_msg, None, []) }} 
+{{ tutor_message(reply) }}
 {% endif %}
