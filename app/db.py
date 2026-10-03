@@ -6,7 +6,7 @@ import os
 BASE_DIR = Path(__file__).parent.parent
 DB_PATH = os.getenv("TUTOR_DB",BASE_DIR /"tutor.db")
 SCHEMA_PATH = BASE_DIR / "schema.sql"
-     
+MIGRATIONS = []
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
@@ -15,6 +15,13 @@ def init_db():
      conn = get_connection() 
      try:
         conn.executescript(SCHEMA_PATH.read_text()) 
+        version = conn.execute("PRAGMA user_version").fetchone()[0]
+        for number,sql in enumerate(MIGRATIONS[version:], start=version + 1):
+             conn.execute("BEGIN")
+             conn.execute(sql)
+             conn.execute(f"PRAGMA user_version = {number}")
+             conn.commit()
+             print(f"Applied migration {number}")
      finally:
         conn.close()
 def ensure_session(session_id : str):
