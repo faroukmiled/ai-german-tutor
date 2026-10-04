@@ -2,6 +2,7 @@ import uuid
 from typing import Literal
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import Form
@@ -12,8 +13,8 @@ from app.tutor import ask_tutor,TutorUnavailable
 async def lifespan(app: FastAPI):
     db.init_db()
     yield
-
 app = FastAPI(lifespan=lifespan)
+app.mount("/static",StaticFiles(directory="app/static"),name="static")
 templates = Jinja2Templates(directory="app/templates")
 @app.get("/", response_class=HTMLResponse)
 def home(request : Request):
@@ -21,7 +22,8 @@ def home(request : Request):
     conversation = db.load_conversation(session_id=session_id) if session_id else []
     response = templates.TemplateResponse(
         request, "index.html", {"greeting": "Hallo! Ich bin dein Deutsch-Tutor.",
-                                "conversation":conversation,"level":db.get_level(session_id=session_id) if session_id else "A2"},
+                                "conversation":conversation,"level":db.get_level(session_id=session_id) if session_id else "A2",
+                                "active":"chat"},
     )
     if "session_id" not in request.cookies:
         session_id = str(uuid.uuid4())

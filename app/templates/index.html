@@ -1,15 +1,6 @@
+{% extends "base.html" %}
 {% from "macros.html" import learner_message, tutor_message %}
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <title> Deutsch-Tutor</title>
-  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
-  <style>
-    #chat p { white-space: pre-wrap; }
-  </style>
-</head>
-<body>
+{% block content %}
   <h1>{{ greeting }}</h1>
   <label>Niveau
     <select name="level" hx-post="/level" hx-trigger="change" hx-target="#level-status">
@@ -35,5 +26,4 @@
     <input name="message" placeholder="Schreib auf Deutsch…" required>
     <button>Senden</button>
   </form>
-</body>
-</html>
+  {% endblock %}
