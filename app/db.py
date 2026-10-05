@@ -9,7 +9,11 @@ SCHEMA_PATH = BASE_DIR / "schema.sql"
 MIGRATIONS = [
      # 1 - learner level
      """ ALTER TABLE sessions ADD COLUMN level TEXT NOT NULL DEFAULT 'A2' CHECK (level IN
-('A1', 'A2', 'B1', 'B2'))"""]
+('A1', 'A2', 'B1', 'B2'))""",
+     # 2 - space repetition
+"""ALTER TABLE vocabulary ADD COLUMN box INTEGER NOT NULL DEFAULT 1""",
+"""ALTER TABLE vocabulary ADD COLUMN due_at TEXT"""]
+REVIEW_INTERVALS_DAYS = {1: 1, 2: 2, 3: 4, 4: 8, 5: 16}
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
@@ -92,4 +96,43 @@ def weak_categories(session_id:str, top:int=3,min_count = 2) -> list[str]:
      weak_spots = [category for (category,count) in mistake_stats(session_id=session_id) if int(count)>=min_count]
      return weak_spots[:top]
     
-          
+def list_vocabulary(session_id:str) -> list[tuple]:
+     with get_connection() as conn:
+          return conn.execute(
+            "SELECT word, gender, translation, box FROM vocabulary "
+            "WHERE session_id = ? ORDER BY word COLLATE NOCASE", (session_id,),
+            ).fetchall()
+def count_due(session_id : str) -> str : 
+     with get_connection() as conn:
+          return conn.execute("SELECT COUNT(*) FROM vocabulary "
+                              "WHERE session_id = ? AND due_at <=datetime('now')",
+                              (session_id,)).fetchone()[0]
+def next_new_word(session_id: str)-> Optional[tuple]:
+     with get_connection() as conn:
+        return conn.execute( """
+                SELECT vocab_id, word, gender, translation, box FROM vocabulary
+                WHERE session_id = ?
+                AND (due_at IS NULL OR due_at <= datetime('now')) ORDER BY due_at IS NOT NULL, due_at
+                LIMIT 1
+                 """,
+                (session_id,),
+            ).fetchone()
+def review_word(session_id:str,vocab_id : int, knew_it):
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT box FROM vocabulary WHERE vocab_id = ? AND session_id = ?",
+            (vocab_id, session_id),
+        ).fetchone()
+        if row is None:
+             return
+        box = min(row[0]+1,5) if knew_it else 1
+        days = REVIEW_INTERVALS_DAYS[box]
+        conn.execute(
+             "UPDATE vocabulary SET box = ?, due_at = datetime('now',?) "
+             "WHERE session_id = ? AND vocab_id = ?",
+             (box,f"+{days} days",session_id,vocab_id),
+        )
+     
+     
+
+     

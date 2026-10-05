@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Wortschatz · Deutsch-Tutor{% endblock %}
+{% block content %}
+<h1>Dein Wortschatz</h1>
+{% if due %}<a class="button" href="/review">{{ due }} Wörter wiederholen</a>{% endif %} {% if words %}
+<table class="vocab">
+<tr><th>Wort</th><th>Bedeutung</th><th>Box</th></tr> {% for word, gender, translation, box in words %} <tr>
+<td>{% if gender %}<span class="muted">{{ gender | article }}</span> {% endif %}{{ word }}</td>
+<td>{{ translation }}</td>
+<td class="num">{{ box }}/5</td> </tr>
+{% endfor %}
+</table>
+{% else %}
+<p class="empty">Noch keine Wörter. Neue Wörter aus dem Chat landen automatisch hier.</p> {% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% if card %}
+{% set vocab_id, word, gender, translation, box = card %} <div class="card">
+<p class="card-word">{{ translation }}</p> <details>
+<summary>Antwort zeigen</summary>
+<p class="card-answer">{% if gender %}{{ gender | article }} {% endif %}{{ word }} </p>
+<div class="card-buttons">
+<button hx-post="/review/{{ vocab_id }}" hx-vals='{"knew": 0}' hx-
+target="#card">Nicht gewusst</button>
+<button hx-post="/review/{{ vocab_id }}" hx-vals='{"knew": 1}' hx-
+target="#card">Gewusst</button> </div>
+</details>
+<p class="muted">Box {{ box }}/5</p> </div>
+{% else %}
+<p class="empty">Fertig für heute! <a href="/vocab">Zurück zum Wortschatz</a></p> {% endif %}

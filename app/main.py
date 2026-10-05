@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi import Form
 from app import db
 from app.tutor import ask_tutor,TutorUnavailable
+from app.filters import article
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.mount("/static",StaticFiles(directory="app/static"),name="static")
 templates = Jinja2Templates(directory="app/templates")
+templates.env.filters["article"] = article
 @app.get("/", response_class=HTMLResponse)
 def home(request : Request):
     session_id = request.cookies.get("session_id")
@@ -65,3 +67,28 @@ def progress(request: Request):
         request, "progress.html", {"stats": stats,"total":total,"active":"progress"}
     )
     return response
+@app.get("/vocab", response_class=HTMLResponse)
+def vocab(request : Request):
+     session_id = request.cookies.get("session_id")
+     words = db.list_vocabulary(session_id) if session_id else []
+     due = db.count_due(session_id) if session_id else 0
+     return templates.TemplateResponse(
+          request,"vocab.html",{"words":words,"due":due,"active":"vocab"}
+     )
+@app.get("/review", response_class=HTMLResponse)
+def review(request : Request):
+     session_id = request.cookies.get("session_id")
+     card = db.next_new_word(session_id=session_id) if session_id else None
+     return templates.TemplateResponse(
+          request,"review.html",{"card":card,"active":"review"}
+     )
+@app.post("/review/{vocab_id}", response_class=HTMLResponse)
+def review_answer(request:Request, vocab_id : int, knew : int = Form()):
+    session_id = request.cookies.get("session_id")
+    if session_id:
+         db.review_word(session_id=session_id,vocab_id=vocab_id,knew_it=bool(knew))
+    card = db.next_new_word(session_id=session_id) if session_id else None
+    return templates.TemplateResponse(
+          request,"partials/card.html",{"card":card}
+     )
+
