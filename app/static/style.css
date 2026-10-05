@@ -1,4 +1,7 @@
 body { margin: 0; font-family: system-ui, sans-serif; line-height: 1.5; }
-.nav { display: flex; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid #ddd; } .nav a.active { font-weight: 600; }
+.nav { display: flex; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid #ddd; } 
+.nav a.active { font-weight: 600; }
 .page { max-width: 720px; margin: 0 auto; padding: 1rem; }
 #chat p { white-space: pre-wrap; }
+.bar{height:0.8rem;background:#2f6fdf;border-radius:4px;}
+.bar-cell { width: 60%; }

@@ -81,3 +81,15 @@ def set_level(session_id:str, level : str)->str:
         with get_connection() as conn:
             conn.execute("""INSERT OR IGNORE INTO sessions (session_id) VALUES (?)""",(session_id,))
             conn.execute("""UPDATE sessions SET level = ? WHERE session_id = ?""",(level,session_id))
+def mistake_stats(session_id:str, days : int = 30) -> list[tuple[str,str]]:
+    with get_connection() as conn:
+        rows = conn.execute("""SELECT k.category,COUNT(*) AS n FROM mistakes k JOIN messages m ON k.message_id = m.message_id 
+                      WHERE m.session_id = ? AND m.created_at>=datetime('now',?)  
+                      GROUP BY k.category ORDER BY n DESC 
+                      """,(session_id,f"-{days} days")).fetchall()
+        return rows 
+def weak_categories(session_id:str, top:int=3,min_count = 2) -> list[str]:
+     weak_spots = [category for (category,count) in mistake_stats(session_id=session_id) if int(count)>=min_count]
+     return weak_spots[:top]
+    
+          

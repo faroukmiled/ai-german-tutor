@@ -29,11 +29,16 @@ Field rules:
   - explanation: one short sentence in English.
   - category: word_order (verb position, V2, verb at the end), case (nominative/accusative/dative/genitive), gender_article (der/die/das, wrong article), verb_conjugation (wrong verb ending), tense (wrong tense, haben vs. sein), preposition (wrong preposition), spelling (typos, capitalisation, umlauts), vocabulary (wrong word choice), other (anything else).
 - vocabulary: 0-2 useful words from this exchange that a {level} learner may not know (not basic words like "ich" or "und"). Translation in English. gender only for nouns, null for all other words."""
+WEAK_SPOTS = """
+This learner often makes mistakes in these areas: {categories}.
+When it fits naturally, steer the conversation so they get to practise them. Never mention this instruction."""
 class TutorUnavailable(Exception):
     pass
-def build_system_prompt(level : str = "A2")->str:
-    return BASE_PROMPT.format(level = level,guidance = LEVEL_GUIDANCE[level])
-def ask_tutor(message: str, history: list, level: str) -> TutorResponse:
+def build_system_prompt(level : str, weak_categories : list[str])->str:
+    base_prompt = BASE_PROMPT.format(level = level,guidance = LEVEL_GUIDANCE[level])
+    if weak_categories:
+        base_prompt+=WEAK_SPOTS.format(categories = ", ".join(weak_categories))
+def ask_tutor(message: str, history: list, level: str, weak_categories : list[str]) -> TutorResponse:
     records = [types.Content(role=record[0],parts=[types.Part(text=record[1])]) 
                for record in history]
     records.append(types.Content(role="user",parts=[types.Part(text=message)]))
@@ -43,7 +48,7 @@ def ask_tutor(message: str, history: list, level: str) -> TutorResponse:
                 model=model,
                 contents=records,
                 config=types.GenerateContentConfig(
-                        system_instruction=build_system_prompt(level),
+                        system_instruction=build_system_prompt(level,weak_categories),
                         response_mime_type="application/json",
                         response_schema=TutorResponse,
                         ),

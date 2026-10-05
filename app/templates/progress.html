@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Fortschritt · Deutsch-Tutor{% endblock %}
+{% block content %}
+<h1>Deine Fehler (letzte 30 Tage)</h1>
+{% if stats %}
+<p class="muted">{{ total }} Fehler insgesamt</p>
+<table class="stats">
+    {% for category, n in stats %} <tr>
+    <td>{{ category }}</td>
+    <td class="bar-cell"><div class="bar" style="width: {{ (100 * n / stats[0][1]) | round | int }}%"></div></td>
+    <td class="num">{{ n }}</td> </tr>
+    {% endfor %}
+    </table>
+    {% else %}
+    <p class="empty">Noch keine Fehler gespeichert. Chatte ein bisschen mit dem Tutor!</p> {% endif %}
+    {% endblock %}

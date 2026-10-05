@@ -38,7 +38,7 @@ def chat(request: Request, message: str = Form(...)):
     history = db.load_history(session_id=session_id)
     level = db.get_level(session_id=session_id)
     try : 
-        tutor_response = ask_tutor(message,history,level)
+        tutor_response = ask_tutor(message,history,level,db.weak_categories(session_id=session_id))
         reply = tutor_response.reply
         db.save_exchange(session_id, message, tutor_response)
     except TutorUnavailable:
@@ -56,3 +56,12 @@ def change_level(request: Request, level: Literal["A1", "A2", "B1", "B2"] = Form
          return HTMLResponse("Bitte lade die Seite neu.")
     db.set_level(session_id=session_id,level=level)
     return HTMLResponse(f"Niveau: {level} ✓")
+@app.get("/progress", response_class=HTMLResponse)
+def progress(request: Request):
+    session_id = request.cookies.get("session_id")
+    stats = db.mistake_stats(session_id=session_id) if session_id else []
+    total = sum(n for _,n in stats)
+    response = templates.TemplateResponse(
+        request, "progress.html", {"stats": stats,"total":total,"active":"progress"}
+    )
+    return response
