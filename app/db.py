@@ -38,9 +38,10 @@ def save_message(session_id: str, role : str, message : str, corrected_sentence:
     with get_connection() as conn :
         cursor = conn.execute("INSERT  INTO messages (session_id,role,message,corrected_sentence) VALUES (?,?,?,?)", (session_id,role,message,corrected_sentence))
         return cursor.lastrowid
-def load_history(session_id:str):
+def load_history(session_id:str, limit : str = 20) -> list[tuple[str,str]]:
     with get_connection() as conn :
-        return conn.execute("SELECT role,message FROM messages where session_id = ? ORDER BY message_id", (session_id,)).fetchall()
+        return conn.execute("SELECT role, message FROM ( SELECT message_id, role, message FROM messages"
+        " WHERE session_id = ? ORDER BY message_id DESC LIMIT ? ) ORDER BY message_id", (session_id,limit)).fetchall()
 def save_exchange(session_id: str, user_message: str, tutor: TutorResponse) -> None:
     with get_connection() as conn :
         user_message_id = conn.execute("INSERT  INTO messages (session_id,role,message,corrected_sentence) VALUES (?,?,?,?)", (session_id,"user",user_message,tutor.corrected_sentence)).lastrowid

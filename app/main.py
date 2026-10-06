@@ -9,7 +9,7 @@ from fastapi import Form
 from app import db
 from app.tutor import ask_tutor,TutorUnavailable
 from app.filters import article
-
+HISTORY_LIMIT = 2
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db.init_db()
@@ -37,7 +37,7 @@ def chat(request: Request, message: str = Form(...)):
     if not session_id:
             return HTMLResponse("<p>Bitte lade die Seite neu.</p>")
     db.ensure_session(session_id=session_id)
-    history = db.load_history(session_id=session_id)
+    history = db.load_history(session_id=session_id,limit=HISTORY_LIMIT)
     level = db.get_level(session_id=session_id)
     try : 
         tutor_response = ask_tutor(message,history,level,db.weak_categories(session_id=session_id))
