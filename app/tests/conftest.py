@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from app import db,main
+from app import db,main,ratelimit
 from app.schemas import TutorResponse,VocabEntry,Mistake
 def fake_tutor(message: str, history: list, level: str, weak_categories : list[str]) -> TutorResponse:
     return TutorResponse(
@@ -14,6 +14,7 @@ def fake_tutor(message: str, history: list, level: str, weak_categories : list[s
         )
 @pytest.fixture
 def client(tmp_path,monkeypatch):
+    ratelimit._requests.clear()
     monkeypatch.setattr(db,"DB_PATH",tmp_path / "test.db")
     monkeypatch.setattr(main,"ask_tutor",fake_tutor)
     with TestClient(main.app) as c:

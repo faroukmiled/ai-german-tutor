@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import Form
-from app import db
+from app import db,ratelimit
 from app.tutor import ask_tutor,TutorUnavailable
 from app.filters import article
 HISTORY_LIMIT = 2
@@ -36,6 +36,9 @@ def chat(request: Request, message: str = Form(...)):
     session_id = request.cookies.get("session_id")
     if not session_id:
             return HTMLResponse("<p>Bitte lade die Seite neu.</p>")
+    if not ratelimit.allow(session_id):
+        return HTMLResponse('<p class="notice">Langsam! Bitte warte einen Moment.</p>')
+         
     db.ensure_session(session_id=session_id)
     history = db.load_history(session_id=session_id,limit=HISTORY_LIMIT)
     level = db.get_level(session_id=session_id)

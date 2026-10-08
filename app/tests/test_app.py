@@ -44,4 +44,9 @@ def test_cannot_review_someone_elses_word(client):
     vocab_id = db.next_due_word(client.cookies["session_id"])[0]
     db.review_word("someone-else", vocab_id, knew_it=True)
     assert db.list_vocabulary(client.cookies["session_id"])[0][3] == 1
+
+def test_rate_limit(client):
+    for _ in range(10):
+        client.post("/chat", data={"message": "Hallo"})
+    assert "Langsam" in client.post("/chat", data={"message": "Hallo"}).text
     
