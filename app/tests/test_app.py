@@ -49,4 +49,9 @@ def test_rate_limit(client):
     for _ in range(10):
         client.post("/chat", data={"message": "Hallo"})
     assert "Langsam" in client.post("/chat", data={"message": "Hallo"}).text
-    
+
+def test_user_html_is_escaped(client):
+    client.post("/chat", data={"message": "<script>alert(1)</script>"}) 
+    page = client.get("/")
+    assert "<script>alert(1)</script>" not in page.text
+    assert "&lt;script&gt;" in page.text

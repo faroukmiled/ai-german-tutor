@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "macros.html" import learner_message, tutor_message %}
 {% block content %}
+<div class="chat-header">
   <h1>{{ greeting }}</h1>
   <label>Niveau
     <select name="level" hx-post="/level" hx-trigger="change" hx-target="#level-status">
@@ -8,19 +9,20 @@
     <option value="{{ l }}" {% if l == level %}selected{% endif %}>{{ l }}</option> {% endfor %}
     </select>
     </label>
-    <span id="level-status"></span>
+    <span id="level-status" class="muted"></span>
+    </div>
 
   <div id="chat">
     {% for msg in conversation %}
-    <p><b>{% if msg.role == "user" %}
-      {{learner_message(msg.text,msg.corrected_sentence,msg.mistakes)}}
-      {% else %}
-      {{tutor_message(msg.text)}}
-      {% endif %}
+      {% if msg.role == "user" %}
+        {{learner_message(msg.text,msg.corrected_sentence,msg.mistakes)}}
+        {% else %}
+        {{tutor_message(msg.text)}}
+        {% endif %}
   {% endfor %}
   </div>
 
-  <form hx-post="/chat" hx-target="#chat" hx-swap="beforeend"
+  <form class="composer" hx-post="/chat" hx-target="#chat" hx-swap="beforeend"
       hx-on::after-request="this.reset()"  hx-indicator="#thinking" hx-disabled-elt="find button">
       <p id="thinking" class="htmx-indicator">Tutor denkt nach…</p>
     <input name="message" placeholder="Schreib auf Deutsch…" required>

@@ -1,7 +1,100 @@
-body { margin: 0; font-family: system-ui, sans-serif; line-height: 1.5; }
-.nav { display: flex; gap: 1rem; padding: 0.75rem 1rem; border-bottom: 1px solid #ddd; } 
-.nav a.active { font-weight: 600; }
+root {
+--bg: #f6f7f9;
+--surface: #ffffff; --text: #1d2330;
+--muted: #6b7280; --accent: #2f6fdf; --user-bubble: #dbe8ff; --tutor-bubble: #ffffff; --border: #e3e6eb; --mark: #ffd8a8; --correction-bg: #fff7ec;
+}
+@media (prefers-color-scheme: dark) { :root {
+    --bg: #14171c;
+    --surface: #1d2129;
+    --text: #e8eaee;
+    --muted: #9aa1ad;
+    --accent: #6c9dff;
+    --user-bubble: #23375c;
+    --tutor-bubble: #232833;
+    --border: #2e3440;
+    --mark: #7a4b12;
+    --correction-bg: #2a2418;
+  }
+}
+* { box-sizing: border-box; }
+body {
+margin: 0;
+background: var(--bg);
+color: var(--text);
+font-family: system-ui, -apple-system, sans-serif; line-height: 1.5;
+}
+.nav {
+display: flex;
+gap: 1rem;
+align-items: center;
+padding: 0.75rem 1rem;
+background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.nav a { color: var(--muted); text-decoration: none; }
+.nav a.active { color: var(--accent); font-weight: 600; }
+.nav .brand { color: var(--text); font-weight: 700; margin-right: auto; }
 .page { max-width: 720px; margin: 0 auto; padding: 1rem; }
-#chat p { white-space: pre-wrap; }
-.bar{height:0.8rem;background:#2f6fdf;border-radius:4px;}
+.chat-header { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.chat-header h1 { font-size: 1.3rem; margin: 0.5rem 0; flex: 1; }
+#chat { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem 0; }
+.msg { display: flex; flex-direction: column; max-width: 85%; }
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.tutor { align-self: flex-start; flex-direction: row; align-items: flex-start; gap: 0.25rem; }
+.bubble {
+padding: 0.6rem 0.9rem; border-radius: 14px; white-space: pre-wrap;
+border: 1px solid var(--border);
+}
+.user .bubble { background: var(--user-bubble); border-bottom-right-radius: 4px; } .tutor .bubble { background: var(--tutor-bubble); border-bottom-left-radius: 4px; }
+mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 2px; }
+.correction {
+margin-top: 0.35rem;
+padding: 0.5rem 0.75rem; background: var(--correction-bg); border-radius: 10px;
+font-size: 0.9rem;
+}
+.correction p { margin: 0 0 0.25rem; }
+.correction ul { margin: 0; padding-left: 1.1rem; }
+.tag {
+font-size: 0.75rem;
+color: var(--muted);
+border: 1px solid var(--border); border-radius: 999px;
+padding: 0 0.4rem;
+}
+.vocab-inline { align-self: flex-start; font-size: 0.85rem; color: var(--muted); }
+.vocab-inline span { margin-left: 0.5rem; }
+.speak, .mic { background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0.25rem;
+}
+.composer {
+display: flex;
+gap: 0.5rem;
+position: sticky; bottom: 0;
+padding: 0.75rem 0; background: var(--bg);
+}
+.composer input {
+flex: 1;
+padding: 0.65rem 0.8rem;
+border: 1px solid var(--border); border-radius: 10px;
+background: var(--surface); color: var(--text);
+font-size: 1rem;
+}
+button[type="submit"], .button, .card-buttons button { background: var(--accent);
+color: #fff;
+border: none;
+border-radius: 10px; padding: 0.6rem 1rem; font-size: 0.95rem; cursor: pointer; text-decoration: none;
+}
+button:disabled { opacity: 0.5; cursor: wait; }
+.muted { color: var(--muted); }
+.empty { color: var(--muted); text-align: center; padding: 2rem 0; } .notice { color: #b45309; }
+table { width: 100%; border-collapse: collapse; }
+td, th { padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--border); text-align: left; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
 .bar-cell { width: 60%; }
+.bar { height: 0.8rem; background: var(--accent); border-radius: 4px; }
+.card {
+background: var(--surface);
+border: 1px solid var(--border); border-radius: 14px;
+padding: 1.5rem;
+text-align: center;
+}
+.card-word { font-size: 1.4rem; margin: 0 0 1rem; }
+.card-answer { font-size: 1.6rem; font-weight: 700; }
+.card-buttons { display: flex; gap: 0.5rem; justify-content: center; } summary { cursor: pointer; color: var(--accent); }

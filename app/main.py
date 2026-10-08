@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi import Form
 from app import db,ratelimit
 from app.tutor import ask_tutor,TutorUnavailable
-from app.filters import article
+from app.filters import article,highlight
 HISTORY_LIMIT = 2
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,6 +18,7 @@ app = FastAPI(lifespan=lifespan)
 app.mount("/static",StaticFiles(directory="app/static"),name="static")
 templates = Jinja2Templates(directory="app/templates")
 templates.env.filters["article"] = article
+templates.env.filters["highlight"] = highlight
 @app.get("/", response_class=HTMLResponse)
 def home(request : Request):
     session_id = request.cookies.get("session_id")

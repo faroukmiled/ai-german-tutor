@@ -1,6 +1,6 @@
 {% macro learner_message(text, corrected_sentence, mistakes) %} 
 <div class="msg user">
-    <p><b>Du:</b> {{ text }}</p> {% if corrected_sentence %} <div class="correction">
+    <div class="bubble">{{ text | highlight(mistakes) }}</div> {% if corrected_sentence %} <div class="correction">
     <p><b>Korrektur:</b> {{ corrected_sentence }}</p> <ul>
     {% for m in mistakes %}
     <li><b>{{ m.original }}</b> → {{ m.correction }} ({{ m.category }}): {{ m.explanation }}</li>
@@ -10,12 +10,13 @@
 {% endmacro %}
 
 {% macro tutor_message(text) %}
-<div class="msg tutor"><p><b>Tutor:</b> {{ text }}</p></div> {% endmacro %}
+<div class="msg tutor"><div class="bubble">{{ text }}</div> </div>
+{% endmacro %}
 {% macro vocabulary_list(vocabulary) %} {% if vocabulary %}
 <div class="vocab-inline">
 <b>Neue Wörter:</b>
 {% for v in vocabulary %}
-<span>{{ v.word }}{% if v.gender %} ({{ v.gender }}){% endif %} = {{ v.translation }}
+<span>{% if v.gender %} ({{ v.gender | article }}){% endif %} {{ v.word }} = {{ v.translation }}
 </span>
 {% endfor %}
 </div>
