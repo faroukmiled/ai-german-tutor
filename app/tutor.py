@@ -4,6 +4,7 @@ import os
 from google import genai
 from app.schemas import TutorResponse
 from dotenv import load_dotenv
+from functools import lru_cache
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 LEVEL_GUIDANCE = {
@@ -15,8 +16,9 @@ LEVEL_GUIDANCE = {
     "B2": "Use natural, fluent German, including idioms and more complex sentence"
 "structures.",
 }
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+@lru_cache
+def get_client():
+    return genai.Client(api_key=GEMINI_API_KEY)
 MODELS = ["gemini-3.5-flash", "gemini-3.6-flash","gemini-3.7-flash", "gemini-3.8-flash", "gemini-flash-latest"]
 BASE_PROMPT = """You are a friendly German tutor chatting with a learner at level {level}.
 Language level = {guidance}
@@ -44,7 +46,7 @@ def ask_tutor(message: str, history: list, level: str, weak_categories : list[st
     records.append(types.Content(role="user",parts=[types.Part(text=message)]))
     for model in MODELS:
         try:
-            response = client.models.generate_content(
+            response = get_client().models.generate_content(
                 model=model,
                 contents=records,
                 config=types.GenerateContentConfig(

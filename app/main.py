@@ -78,7 +78,7 @@ def vocab(request : Request):
 @app.get("/review", response_class=HTMLResponse)
 def review(request : Request):
      session_id = request.cookies.get("session_id")
-     card = db.next_new_word(session_id=session_id) if session_id else None
+     card = db.next_due_word(session_id=session_id) if session_id else None
      return templates.TemplateResponse(
           request,"review.html",{"card":card,"active":"review"}
      )
@@ -87,7 +87,7 @@ def review_answer(request:Request, vocab_id : int, knew : int = Form()):
     session_id = request.cookies.get("session_id")
     if session_id:
          db.review_word(session_id=session_id,vocab_id=vocab_id,knew_it=bool(knew))
-    card = db.next_new_word(session_id=session_id) if session_id else None
+    card = db.next_due_word(session_id=session_id) if session_id else None
     return templates.TemplateResponse(
           request,"partials/card.html",{"card":card}
      )

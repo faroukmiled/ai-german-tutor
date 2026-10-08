@@ -108,7 +108,7 @@ def count_due(session_id : str) -> str :
           return conn.execute("SELECT COUNT(*) FROM vocabulary "
                               "WHERE session_id = ? AND due_at <=datetime('now')",
                               (session_id,)).fetchone()[0]
-def next_new_word(session_id: str)-> Optional[tuple]:
+def next_due_word(session_id: str)-> Optional[tuple]:
      with get_connection() as conn:
         return conn.execute( """
                 SELECT vocab_id, word, gender, translation, box FROM vocabulary
