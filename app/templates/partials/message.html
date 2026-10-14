@@ -5,5 +5,5 @@
   {{ vocabulary_list(learnings.vocabulary) }}
 {% else %}
 {{ learner_message(user_msg, None, []) }} 
-{{ tutor_message(reply) }}
+<div class="msg tutor"><div class="bubble notice">{{ reply }}</div></div>
 {% endif %}

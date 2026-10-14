@@ -12,20 +12,22 @@
     <span id="level-status" class="muted"></span>
     </div>
 
-  <div id="chat">
+  <div id="chat" hx-on::after-swap="this.lastElementChild?.scrollIntoView({behavior: 'smooth'})">
     {% for msg in conversation %}
       {% if msg.role == "user" %}
         {{learner_message(msg.text,msg.corrected_sentence,msg.mistakes)}}
         {% else %}
         {{tutor_message(msg.text)}}
         {% endif %}
+      {% else %}
+        <p class="empty">Schreib deinen ersten Satz auf Deutsch, zum Beispiel: „Ich heiße ...“</p>
   {% endfor %}
   </div>
+  <p id="thinking" class="htmx-indicator">Tutor denkt nach…</p>
 
   <form class="composer" hx-post="/chat" hx-target="#chat" hx-swap="beforeend"
       hx-on::after-request="this.reset()"  hx-indicator="#thinking" hx-disabled-elt="find button">
-      <p id="thinking" class="htmx-indicator">Tutor denkt nach…</p>
-    <input name="message" placeholder="Schreib auf Deutsch…" required>
-    <button>Senden</button>
+    <input name="message" placeholder="Schreib auf Deutsch..." autocomplete="off" required autofocus>
+    <button type="submit">Senden</button>
   </form>
   {% endblock %}
