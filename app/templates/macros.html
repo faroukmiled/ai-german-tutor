@@ -11,6 +11,7 @@
 
 {% macro tutor_message(text) %}
 <div class="msg tutor"><div class="bubble">{{ text }}</div> </div>
+<button type=""button" class="speak" data-text="{{ text }}">🔊</button>
 {% endmacro %}
 {% macro vocabulary_list(vocabulary) %} {% if vocabulary %}
 <div class="vocab-inline">

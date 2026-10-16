@@ -28,6 +28,7 @@
   <form class="composer" hx-post="/chat" hx-target="#chat" hx-swap="beforeend"
       hx-on::after-request="this.reset()"  hx-indicator="#thinking" hx-disabled-elt="find button">
     <input name="message" placeholder="Schreib auf Deutsch..." autocomplete="off" required autofocus>
+    <button type="button" class="mic">🎤</button>
     <button type="submit">Senden</button>
   </form>
   {% endblock %}

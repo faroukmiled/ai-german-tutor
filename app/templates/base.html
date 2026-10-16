@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"> <title>{% block title %}Deutsch-Tutor{% endblock %}</title>
 <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}"> <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
 </head> <body>
+<script src="{{ url_for('static', path='app.js') }}" defer></script>
 <nav class="nav">
 <a href="/" class="brand">Deutsch-Tutor</a>
 <a href="/" {% if active == "chat" %}class="active"{% endif %}>Chat</a>
